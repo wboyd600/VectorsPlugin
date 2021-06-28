@@ -2,5 +2,7 @@ VelocityVectorsPlugin/.vs/
 VelocityVectorsPlugin/Debug/
 VelocityVectorsPlugin/x64/
 VelocityVectorsPlugin/SpeedAndFlipIndicatorPlugin.vcxproj.user
-.vs
+*.vs
 .git
+
+*.x64/Release
