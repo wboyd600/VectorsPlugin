@@ -5,4 +5,4 @@ VelocityVectorsPlugin/SpeedAndFlipIndicatorPlugin.vcxproj.user
 .vs/
 .git
 
-x64/Release
+x64/Release/
