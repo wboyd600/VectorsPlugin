@@ -18,6 +18,49 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="RenderingTools\Extra\CanvasExtensions.cpp" />
+    <ClCompile Include="RenderingTools\Extra\RenderingAssistant.cpp" />
+    <ClCompile Include="RenderingTools\Extra\RenderingMath.cpp" />
+    <ClCompile Include="RenderingTools\Extra\WrapperStructsExtensions.cpp" />
+    <ClCompile Include="RenderingTools\Objects\Chevron.cpp" />
+    <ClCompile Include="RenderingTools\Objects\Circle.cpp" />
+    <ClCompile Include="RenderingTools\Objects\Circle2D.cpp" />
+    <ClCompile Include="RenderingTools\Objects\Cone.cpp" />
+    <ClCompile Include="RenderingTools\Objects\Cube.cpp" />
+    <ClCompile Include="RenderingTools\Objects\Cylinder.cpp" />
+    <ClCompile Include="RenderingTools\Objects\Frustum.cpp" />
+    <ClCompile Include="RenderingTools\Objects\Grid.cpp" />
+    <ClCompile Include="RenderingTools\Objects\Line.cpp" />
+    <ClCompile Include="RenderingTools\Objects\Matrix3.cpp" />
+    <ClCompile Include="RenderingTools\Objects\Plane.cpp" />
+    <ClCompile Include="RenderingTools\Objects\Sphere.cpp" />
+    <ClCompile Include="RenderingTools\Objects\Triangle.cpp" />
+    <ClCompile Include="RenderingTools\Objects\VisualCamera.cpp" />
+    <ClCompile Include="VelocityVectorPlugin.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="RenderingTools\Extra\CanvasExtensions.h" />
+    <ClInclude Include="RenderingTools\Extra\RenderingAssistant.h" />
+    <ClInclude Include="RenderingTools\Extra\RenderingMath.h" />
+    <ClInclude Include="RenderingTools\Extra\WrapperStructsExtensions.h" />
+    <ClInclude Include="RenderingTools\Objects\Chevron.h" />
+    <ClInclude Include="RenderingTools\Objects\Circle.h" />
+    <ClInclude Include="RenderingTools\Objects\Circle2D.h" />
+    <ClInclude Include="RenderingTools\Objects\Cone.h" />
+    <ClInclude Include="RenderingTools\Objects\Cube.h" />
+    <ClInclude Include="RenderingTools\Objects\Cylinder.h" />
+    <ClInclude Include="RenderingTools\Objects\Frustum.h" />
+    <ClInclude Include="RenderingTools\Objects\Grid.h" />
+    <ClInclude Include="RenderingTools\Objects\Line.h" />
+    <ClInclude Include="RenderingTools\Objects\Matrix3.h" />
+    <ClInclude Include="RenderingTools\Objects\Plane.h" />
+    <ClInclude Include="RenderingTools\Objects\Sphere.h" />
+    <ClInclude Include="RenderingTools\Objects\Triangle.h" />
+    <ClInclude Include="RenderingTools\Objects\VisualCamera.h" />
+    <ClInclude Include="RenderingTools\RenderingTools.h" />
+    <ClInclude Include="VelocityVectorPlugin.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
