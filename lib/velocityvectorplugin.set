@@ -1,0 +1,4 @@
+Velocity Vector plugin
+9|This plugin will render velocity vectors for your car and ball in freeplay, custom training, custom maps, and replays
+6|Show hitbox|cl_show_vectors|Off@0&Practice and Replays@1
+13|RGBA|cl_vector_color
