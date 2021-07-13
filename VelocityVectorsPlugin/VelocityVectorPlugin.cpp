@@ -15,7 +15,7 @@
 #include "RenderingTools/Objects/Cone.h"
 #include "RenderingTools/Extra/WrapperStructsExtensions.h"
 #include "RenderingTools/Extra/RenderingMath.h"
-BAKKESMOD_PLUGIN(VelocityVectorPlugin, "Velocity vector plugin", "0.1", PLUGINTYPE_FREEPLAY | PLUGINTYPE_CUSTOM_TRAINING)
+BAKKESMOD_PLUGIN(VelocityVectorPlugin, "Velocity Vector plugin", "0.1", PLUGINTYPE_FREEPLAY | PLUGINTYPE_CUSTOM_TRAINING)
 
 VelocityVectorPlugin::VelocityVectorPlugin() {
 
@@ -29,7 +29,7 @@ void VelocityVectorPlugin::onLoad()
 	vectors_on= std::make_shared<int>(0);
 	cvarManager->registerCvar("cl_show_vectors", "0", "Enable or Disable the Velocity Vector Plugin", true, true, 0, true, 1, true).bindTo(vectors_on);
 	cvarManager->getCvar("cl_show_vectors").addOnValueChanged(std::bind(&VelocityVectorPlugin::OnShowVectorsChanged, this, std::placeholders::_1, std::placeholders::_2));
-
+	vector_scale = 3.f;
 
 	vector_color = std::make_shared<LinearColor>(LinearColor{ 0.f,0.f,0.f,0.f });
 	cvarManager->registerCvar("cl_vector_color", "#FFFF00", "Color of the velocity vector visualization.", true).bindTo(vector_color);
@@ -101,15 +101,15 @@ void VelocityVectorPlugin::Render(CanvasWrapper canvas)
 		auto difference = currentTime - last_time;
 		last_time = currentTime;
 		canvas.SetColor(*vector_color);
-		auto scale = 3.f;
+		
 		if (diff < 1000.f) {
 			auto car_v = car.GetVelocity();
 			if (abs(car_v.Z) < 20.f) {
 				car_v.Z = 0.f;
 			}
 			auto add = car.GetVelocity().getNormalized() * 15.f;
-			RT::Line(loc_car, loc_car + car_v * (difference) * scale + add, 7.f).DrawWithinFrustum(canvas, frust);
-			auto car_cone = RT::Cone(loc_car + car_v * (difference) * scale, car_v);
+			RT::Line(loc_car, loc_car + car_v * (difference) * vector_scale + add, 7.f).DrawWithinFrustum(canvas, frust);
+			auto car_cone = RT::Cone(loc_car + car_v * (difference) * vector_scale, car_v);
 			car_cone.height = 15;
 			car_cone.segments = 20;
 			car_cone.radius = 20;
@@ -123,8 +123,8 @@ void VelocityVectorPlugin::Render(CanvasWrapper canvas)
 			if (abs(ball_v.Z) < 20.f) {
 				ball_v.Z = 0.f;
 			}
-			RT::Line(loc_ball, loc_ball + ball_v * (difference) *scale + add2, 7.f).DrawWithinFrustum(canvas, frust);
-			auto ball_cone = RT::Cone(loc_ball + ball_v * (difference) *scale, ball_v );
+			RT::Line(loc_ball, loc_ball + ball_v * (difference) *vector_scale + add2, 7.f).DrawWithinFrustum(canvas, frust);
+			auto ball_cone = RT::Cone(loc_ball + ball_v * (difference) *vector_scale, ball_v );
 			ball_cone.height = 15;
 			ball_cone.segments = 20;
 			ball_cone.radius = 20;
