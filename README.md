@@ -1,4 +1,4 @@
-# VelocityVectorsPlugin
+# VelocityVectorPlugin
 Rocket League BakkesMod plugin creates velocity vectors for the car and ball.
 
 Add your path to BakkesModSDK in environment variables as "BakkesModSDK"
@@ -11,6 +11,8 @@ Once built, load in BakkesMod command terminal with
 
     "plugin load velocityvectorplugin"
     "cl_show_vectors 1"
+
+## Installation
 
 Alternatively, one can control cl_show_vectors and cl_vector_color from BakkesMod settings
 
