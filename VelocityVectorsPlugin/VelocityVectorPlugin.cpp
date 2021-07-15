@@ -74,7 +74,7 @@ float last_time = 0.f;
 void VelocityVectorPlugin::Render(CanvasWrapper canvas)
 {
 	int ingame = (gameWrapper->IsInGame()) ? 1 : (gameWrapper->IsInReplay()) ? 2 : 0;
-	if (*vectors_on && ingame) {
+	if (*vectors_on && ingame && !gameWrapper->IsPaused()) {
 
 		if (gameWrapper->IsInOnlineGame() && ingame != 2) return;
 		ServerWrapper game = (ingame == 1) ? gameWrapper->GetGameEventAsServer() : gameWrapper->GetGameEventAsReplay();
