@@ -15,7 +15,7 @@ private:
 	std::shared_ptr<int> vectors_on;
 	std::shared_ptr<LinearColor> vector_color;
 	RGBA colors[2] = { {0, 255, 0, 240}, {75, 0, 130, 240} };
-	float vector_scale;
+	std::shared_ptr<float> vector_scale;
 public:
 	VelocityVectorPlugin();
 	~VelocityVectorPlugin();
