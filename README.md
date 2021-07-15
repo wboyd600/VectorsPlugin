@@ -27,6 +27,10 @@ Alternatively, one can control cl_show_vectors and cl_vector_color from BakkesMo
 Screenshots above shows what vectors will look like. Useful for practicing air-dribbling
 
 
+## Install online
+Follow hyperlink to install with bakkesplugin [website](https://bakkesplugins.com/plugins/view/262). 
+
+
 Possible Problems:
 - BakkesModSDK environment variable not set correctly, affects paths to include and lib directories.
 - Post-build command: python not installed, python not a path variable, "bakkes_patchplugin.py" not pointing to proper plugins directory.
