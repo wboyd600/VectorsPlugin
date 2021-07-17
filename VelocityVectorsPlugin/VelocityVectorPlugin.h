@@ -2,6 +2,7 @@
 #include <memory>
 #pragma comment( lib, "pluginsdk.lib" )
 #include "bakkesmod/plugin/bakkesmodplugin.h"
+#include "RenderingTools/Objects/Cone.h"
 
 struct RGBA
 {
@@ -16,6 +17,10 @@ private:
 	std::shared_ptr<LinearColor> vector_color;
 	RGBA colors[2] = { {0, 255, 0, 240}, {75, 0, 130, 240} };
 	std::shared_ptr<float> vector_scale;
+	float cone_height;
+	int cone_segments;
+	int cone_radius;
+	int cone_thickness;
 public:
 	VelocityVectorPlugin();
 	~VelocityVectorPlugin();
@@ -25,4 +30,5 @@ public:
 	void OnFreeplayDestroy(std::string eventName);
 	void OnShowVectorsChanged(std::string oldValue, CVarWrapper cvar);
 	void Render(CanvasWrapper canvas);
+	RT::Cone GetCone(Vector loc, Vector v, float difference, float scale);
 };

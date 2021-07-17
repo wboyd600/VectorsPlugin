@@ -12,7 +12,6 @@
 #include "RenderingTools/Objects/Circle.h"
 #include "RenderingTools/Objects/Frustum.h"
 #include "RenderingTools/Objects/Line.h"
-#include "RenderingTools/Objects/Cone.h"
 #include "RenderingTools/Extra/WrapperStructsExtensions.h"
 #include "RenderingTools/Extra/RenderingMath.h"
 BAKKESMOD_PLUGIN(VelocityVectorPlugin, "Velocity Vector plugin", "0.1", PLUGINTYPE_FREEPLAY | PLUGINTYPE_CUSTOM_TRAINING)
@@ -35,6 +34,11 @@ void VelocityVectorPlugin::onLoad()
 	vector_color = std::make_shared<LinearColor>(LinearColor{ 0.f,0.f,0.f,0.f });
 	cvarManager->registerCvar("cl_vector_color", "#FFFF00", "Color of the velocity vector visualization.", true).bindTo(vector_color);
 
+
+	cone_height = 15.f;
+	cone_segments = 20;
+	cone_radius = 20;
+	cone_thickness = 3;
 	gameWrapper->HookEvent("Function TAGame.Mutator_Freeplay_TA.Init", bind(&VelocityVectorPlugin::OnFreeplayLoad, this, std::placeholders::_1));
 	gameWrapper->HookEvent("Function TAGame.GameEvent_Soccar_TA.Destroyed", bind(&VelocityVectorPlugin::OnFreeplayDestroy, this, std::placeholders::_1));
 	gameWrapper->HookEvent("Function TAGame.GameEvent_TrainingEditor_TA.StartPlayTest", bind(&VelocityVectorPlugin::OnFreeplayLoad, this, std::placeholders::_1));
@@ -91,49 +95,49 @@ void VelocityVectorPlugin::Render(CanvasWrapper canvas)
 		Vector loc_car = car.GetLocation();
 		Vector loc_ball = game.GetBall().GetLocation();
 
-		Rotator rot_car = car.GetRotation();
-		Rotator rot_ball = game.GetBall().GetRotation();
-
 		float diff = (camera.GetLocation() - loc_car).magnitude();
 		float ball_diff = (camera.GetLocation() - loc_ball).magnitude();
-		Quat car_rot = RotatorToQuat(rot_car);
-		Quat ball_rot = RotatorToQuat(rot_ball);
+
 		auto currentTime = game.GetSecondsElapsed();
 		auto difference = currentTime - last_time;
 		last_time = currentTime;
 		canvas.SetColor(*vector_color);
 		auto scale = *vector_scale;
+		
 		if (diff < 1000.f) {
+			auto add = car.GetVelocity().getNormalized() * cone_height;
 			auto car_v = car.GetVelocity();
 			if (abs(car_v.Z) < 20.f) {
 				car_v.Z = 0.f;
 			}
-			auto add = car.GetVelocity().getNormalized() * 15.f;
 			RT::Line(loc_car, loc_car + car_v * (difference) * scale + add, 7.f).DrawWithinFrustum(canvas, frust);
-			auto car_cone = RT::Cone(loc_car + car_v * (difference) * scale, car_v);
-			car_cone.height = 15;
-			car_cone.segments = 20;
-			car_cone.radius = 20;
-			car_cone.thickness = 3;
+			auto car_cone = GetCone(loc_car, car_v, difference, scale);
 			car_cone.Draw(canvas);
 
 		}
 		if (ball_diff < 1000.f) {
-			auto add2 = game.GetBall().GetVelocity().getNormalized() * 15.f;
+			auto add_ball = game.GetBall().GetVelocity().getNormalized() * cone_height;
 			auto ball_v = game.GetBall().GetVelocity();
 			if (abs(ball_v.Z) < 20.f) {
 				ball_v.Z = 0.f;
 			}
-			RT::Line(loc_ball, loc_ball + ball_v * (difference) * scale + add2, 7.f).DrawWithinFrustum(canvas, frust);
-			auto ball_cone = RT::Cone(loc_ball + ball_v * (difference) * scale, ball_v );
-			ball_cone.height = 15;
-			ball_cone.segments = 20;
-			ball_cone.radius = 20;
-			ball_cone.thickness = 3;
+			RT::Line(loc_ball, loc_ball + ball_v * (difference) * scale + add_ball, 7.f).DrawWithinFrustum(canvas, frust);
+			auto ball_cone = GetCone(loc_ball,ball_v,difference,scale);
 			ball_cone.Draw(canvas);
+
 		}
 	}
 
+}
+
+RT::Cone VelocityVectorPlugin::GetCone(Vector loc, Vector v, float difference, float scale)
+{
+	auto ball_cone = RT::Cone(loc + v * (difference)*scale, v);
+	ball_cone.height = cone_height;
+	ball_cone.segments = cone_segments;
+	ball_cone.radius = cone_radius;
+	ball_cone.thickness = cone_thickness;
+	return ball_cone;
 }
 
 
