@@ -34,8 +34,8 @@ void VelocityVectorPlugin::onLoad()
 	vector_color = std::make_shared<LinearColor>(LinearColor{ 0.f,0.f,0.f,0.f });
 	cvarManager->registerCvar("cl_vector_color", "#FFFF00", "Color of the velocity vector visualization.", true).bindTo(vector_color);
 
-
-	cone_height = 15.f;
+	cone_height = std::make_shared<float>(15.f);
+	cvarManager->registerCvar("cl_cone_height", "15.f", "Height of cone", true, true, 1.f, true, 20.f, true).bindTo(cone_height);
 	cone_segments = 20;
 	cone_radius = 20;
 	cone_thickness = 3;
@@ -103,9 +103,9 @@ void VelocityVectorPlugin::Render(CanvasWrapper canvas)
 		last_time = currentTime;
 		canvas.SetColor(*vector_color);
 		auto scale = *vector_scale;
-		
+		auto c_height = *cone_height;
 		if (diff < 1000.f) {
-			auto add = car.GetVelocity().getNormalized() * cone_height;
+			auto add = car.GetVelocity().getNormalized() * c_height;
 			auto car_v = car.GetVelocity();
 			if (abs(car_v.Z) < 20.f) {
 				car_v.Z = 0.f;
@@ -116,7 +116,7 @@ void VelocityVectorPlugin::Render(CanvasWrapper canvas)
 
 		}
 		if (ball_diff < 1000.f) {
-			auto add_ball = game.GetBall().GetVelocity().getNormalized() * cone_height;
+			auto add_ball = game.GetBall().GetVelocity().getNormalized() * c_height;
 			auto ball_v = game.GetBall().GetVelocity();
 			if (abs(ball_v.Z) < 20.f) {
 				ball_v.Z = 0.f;
@@ -133,7 +133,7 @@ void VelocityVectorPlugin::Render(CanvasWrapper canvas)
 RT::Cone VelocityVectorPlugin::GetCone(Vector loc, Vector v, float difference, float scale)
 {
 	auto ball_cone = RT::Cone(loc + v * (difference)*scale, v);
-	ball_cone.height = cone_height;
+	ball_cone.height = *cone_height;
 	ball_cone.segments = cone_segments;
 	ball_cone.radius = cone_radius;
 	ball_cone.thickness = cone_thickness;

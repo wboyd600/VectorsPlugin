@@ -17,7 +17,8 @@ private:
 	std::shared_ptr<LinearColor> vector_color;
 	RGBA colors[2] = { {0, 255, 0, 240}, {75, 0, 130, 240} };
 	std::shared_ptr<float> vector_scale;
-	float cone_height;
+	std::shared_ptr<float> cone_height;
+
 	int cone_segments;
 	int cone_radius;
 	int cone_thickness;
