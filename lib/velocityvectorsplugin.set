@@ -1,10 +1,13 @@
 Velocity Vector plugin
 9|This plugin will render velocity vectors for your car and ball in freeplay, custom training, custom maps, and replays
-6|Show hitbox|cl_show_vectors|Off@0&Practice and Replays@1
+6|Show vectors|cl_show_vectors|Off@0&Practice and Replays@1
 4|Vector Scale|cl_vector_scale|1.f|5.f
+8|
 4|Cone Height|cl_cone_height|1.f|20.f
 5|Cone Segments|cl_cone_segments|1|30
 5|Cone Radius|cl_cone_radius|5|30
 5|Cone Thickness|cl_cone_segments|1|10
+8|
 0|Reset Defaults|notifier_reset_defaults
 13|RGBA|cl_vector_color
+9|Note: For best results, set refresh rate in Rocket League video settings to 60 FPS
