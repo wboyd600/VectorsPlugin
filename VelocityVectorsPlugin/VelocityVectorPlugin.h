@@ -2,11 +2,12 @@
 #include <memory>
 #pragma comment( lib, "pluginsdk.lib" )
 #include "bakkesmod/plugin/bakkesmodplugin.h"
+#include "RenderingTools/Objects/Cone.h"
 
-struct RGBA
-{
-	unsigned char r, g, b, a; //rgba can be a value of 0-255
-};
+//struct RGBA
+//{
+//	unsigned char r, g, b, a; //rgba can be a value of 0-255
+//};
 
 
 class VelocityVectorPlugin : public BakkesMod::Plugin::BakkesModPlugin
@@ -14,8 +15,12 @@ class VelocityVectorPlugin : public BakkesMod::Plugin::BakkesModPlugin
 private: 
 	std::shared_ptr<int> vectors_on;
 	std::shared_ptr<LinearColor> vector_color;
-	RGBA colors[2] = { {0, 255, 0, 240}, {75, 0, 130, 240} };
+	LinearColor colors[2] = { {250, 250, 0, 255}, {75, 0, 130, 240} };
 	std::shared_ptr<float> vector_scale;
+	std::shared_ptr<float> cone_height;
+	std::shared_ptr<int> cone_segments;
+	std::shared_ptr<int> cone_radius;
+	std::shared_ptr<int> cone_thickness;
 public:
 	VelocityVectorPlugin();
 	~VelocityVectorPlugin();
@@ -25,4 +30,6 @@ public:
 	void OnFreeplayDestroy(std::string eventName);
 	void OnShowVectorsChanged(std::string oldValue, CVarWrapper cvar);
 	void Render(CanvasWrapper canvas);
+	RT::Cone GetCone(Vector loc, Vector v, float difference);
+	void ResetDefault();
 };

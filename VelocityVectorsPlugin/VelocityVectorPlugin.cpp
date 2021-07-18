@@ -12,7 +12,6 @@
 #include "RenderingTools/Objects/Circle.h"
 #include "RenderingTools/Objects/Frustum.h"
 #include "RenderingTools/Objects/Line.h"
-#include "RenderingTools/Objects/Cone.h"
 #include "RenderingTools/Extra/WrapperStructsExtensions.h"
 #include "RenderingTools/Extra/RenderingMath.h"
 BAKKESMOD_PLUGIN(VelocityVectorPlugin, "Velocity Vector plugin", "0.1", PLUGINTYPE_FREEPLAY | PLUGINTYPE_CUSTOM_TRAINING)
@@ -29,12 +28,27 @@ void VelocityVectorPlugin::onLoad()
 	vectors_on= std::make_shared<int>(0);
 	cvarManager->registerCvar("cl_show_vectors", "0", "Enable or Disable the Velocity Vector Plugin", true, true, 0, true, 1, true).bindTo(vectors_on);
 	cvarManager->getCvar("cl_show_vectors").addOnValueChanged(std::bind(&VelocityVectorPlugin::OnShowVectorsChanged, this, std::placeholders::_1, std::placeholders::_2));
+	// Set and bind vector scale
 	vector_scale = std::make_shared<float>(1.f);
 	cvarManager->registerCvar("cl_vector_scale", "3.f", "Scale of velocity vector projection", true, true, 1.f, true, 5.f, true).bindTo(vector_scale);
-
+	// Set and bind vector color
 	vector_color = std::make_shared<LinearColor>(LinearColor{ 0.f,0.f,0.f,0.f });
 	cvarManager->registerCvar("cl_vector_color", "#FFFF00", "Color of the velocity vector visualization.", true).bindTo(vector_color);
-
+	// Set and bind cone height
+	cone_height = std::make_shared<float>(15.f);
+	cvarManager->registerCvar("cl_cone_height", "15.f", "Height of cone", true, true, 1.f, true, 20.f, true).bindTo(cone_height);
+	// Set and bind cone segments
+	cone_segments = std::make_shared<int>(20);
+	cvarManager->registerCvar("cl_cone_segments", "20", "Height of cone", true, true, 6, true, 30, true).bindTo(cone_segments);
+	// Set and bind cone radius
+	cone_radius = std::make_shared<int>(20);
+	cvarManager->registerCvar("cl_cone_radius", "20", "Radius of cone", true, true, 5, true, 30, true).bindTo(cone_radius);
+	// Set and bind cone thickness
+	cone_thickness = std::make_shared<int>(3);
+	cvarManager->registerCvar("cl_cone_thickness", "3", "Thickness of cone", true, true, 1, true, 10, true).bindTo(cone_thickness);
+	//Notifier calls ResetDefaults function
+	cvarManager->registerNotifier("notifier_reset_defaults", [this](std::vector<std::string>params) {ResetDefault(); }, "Reset Defaults", PERMISSION_ALL);
+	
 	gameWrapper->HookEvent("Function TAGame.Mutator_Freeplay_TA.Init", bind(&VelocityVectorPlugin::OnFreeplayLoad, this, std::placeholders::_1));
 	gameWrapper->HookEvent("Function TAGame.GameEvent_Soccar_TA.Destroyed", bind(&VelocityVectorPlugin::OnFreeplayDestroy, this, std::placeholders::_1));
 	gameWrapper->HookEvent("Function TAGame.GameEvent_TrainingEditor_TA.StartPlayTest", bind(&VelocityVectorPlugin::OnFreeplayLoad, this, std::placeholders::_1));
@@ -91,49 +105,61 @@ void VelocityVectorPlugin::Render(CanvasWrapper canvas)
 		Vector loc_car = car.GetLocation();
 		Vector loc_ball = game.GetBall().GetLocation();
 
-		Rotator rot_car = car.GetRotation();
-		Rotator rot_ball = game.GetBall().GetRotation();
-
 		float diff = (camera.GetLocation() - loc_car).magnitude();
 		float ball_diff = (camera.GetLocation() - loc_ball).magnitude();
-		Quat car_rot = RotatorToQuat(rot_car);
-		Quat ball_rot = RotatorToQuat(rot_ball);
+
 		auto currentTime = game.GetSecondsElapsed();
 		auto difference = currentTime - last_time;
 		last_time = currentTime;
 		canvas.SetColor(*vector_color);
-		auto scale = *vector_scale;
 		if (diff < 1000.f) {
+			auto add = car.GetVelocity().getNormalized() * *cone_height;
 			auto car_v = car.GetVelocity();
 			if (abs(car_v.Z) < 20.f) {
 				car_v.Z = 0.f;
 			}
-			auto add = car.GetVelocity().getNormalized() * 15.f;
-			RT::Line(loc_car, loc_car + car_v * (difference) * scale + add, 7.f).DrawWithinFrustum(canvas, frust);
-			auto car_cone = RT::Cone(loc_car + car_v * (difference) * scale, car_v);
-			car_cone.height = 15;
-			car_cone.segments = 20;
-			car_cone.radius = 20;
-			car_cone.thickness = 3;
+			RT::Line(loc_car, loc_car + car_v * (difference) * *vector_scale + add, 7.f).DrawWithinFrustum(canvas, frust);
+			auto car_cone = GetCone(loc_car, car_v, difference);
 			car_cone.Draw(canvas);
 
 		}
 		if (ball_diff < 1000.f) {
-			auto add2 = game.GetBall().GetVelocity().getNormalized() * 15.f;
+			auto add_ball = game.GetBall().GetVelocity().getNormalized() * *cone_height;
 			auto ball_v = game.GetBall().GetVelocity();
 			if (abs(ball_v.Z) < 20.f) {
 				ball_v.Z = 0.f;
 			}
-			RT::Line(loc_ball, loc_ball + ball_v * (difference) * scale + add2, 7.f).DrawWithinFrustum(canvas, frust);
-			auto ball_cone = RT::Cone(loc_ball + ball_v * (difference) * scale, ball_v );
-			ball_cone.height = 15;
-			ball_cone.segments = 20;
-			ball_cone.radius = 20;
-			ball_cone.thickness = 3;
+			RT::Line(loc_ball, loc_ball + ball_v * (difference) * *vector_scale + add_ball, 7.f).DrawWithinFrustum(canvas, frust);
+			auto ball_cone = GetCone(loc_ball,ball_v,difference);
 			ball_cone.Draw(canvas);
+
 		}
 	}
 
 }
 
+RT::Cone VelocityVectorPlugin::GetCone(Vector loc, Vector v, float difference)
+{
+	auto cone_ret = RT::Cone(loc + v * (difference)* *vector_scale, v);
+	cone_ret.height = *cone_height;
+	cone_ret.segments = *cone_segments;
+	cone_ret.radius = *cone_radius;
+	cone_ret.thickness = *cone_thickness;
+	return cone_ret;
+}
 
+
+void VelocityVectorPlugin::ResetDefault() {
+	cvarManager->getCvar("cl_vector_scale").setValue(1.f);
+	cvarManager->getCvar("cl_vector_color").setValue(colors[0]);
+	cvarManager->getCvar("cl_cone_height").setValue(15.f);
+	cvarManager->getCvar("cl_cone_segments").setValue(20);
+	cvarManager->getCvar("cl_cone_radius").setValue(20);
+	cvarManager->getCvar("cl_cone_thickness").setValue(3);
+	*vector_scale = 1.f;
+	*vector_color = colors[0];
+	*cone_height = 15.f;
+	*cone_segments = 20;
+	*cone_radius = 20;
+	*cone_thickness = 3;
+}
