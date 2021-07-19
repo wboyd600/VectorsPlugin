@@ -4,11 +4,6 @@
 #include "bakkesmod/plugin/bakkesmodplugin.h"
 #include "RenderingTools/Objects/Cone.h"
 
-//struct RGBA
-//{
-//	unsigned char r, g, b, a; //rgba can be a value of 0-255
-//};
-
 
 class VelocityVectorPlugin : public BakkesMod::Plugin::BakkesModPlugin
 {

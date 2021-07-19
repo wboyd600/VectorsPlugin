@@ -16,13 +16,23 @@
 #include "RenderingTools/Extra/RenderingMath.h"
 BAKKESMOD_PLUGIN(VelocityVectorPlugin, "Velocity Vector plugin", "0.1", PLUGINTYPE_FREEPLAY | PLUGINTYPE_CUSTOM_TRAINING)
 
-VelocityVectorPlugin::VelocityVectorPlugin() {
+#ifndef LOGGING
+#define LOGGING 0
+#endif // !LOGGING
 
+
+
+#if LOGGING
+#include "utils/parser.h"
+std::ofstream output_csv;
+#endif // LOGGING
+
+VelocityVectorPlugin::VelocityVectorPlugin() {
 }
 
 VelocityVectorPlugin::~VelocityVectorPlugin() {
-
 }
+
 void VelocityVectorPlugin::onLoad()
 {
 	vectors_on= std::make_shared<int>(0);
@@ -48,19 +58,25 @@ void VelocityVectorPlugin::onLoad()
 	cvarManager->registerCvar("cl_cone_thickness", "3", "Thickness of cone", true, true, 1, true, 10, true).bindTo(cone_thickness);
 	//Notifier calls ResetDefaults function
 	cvarManager->registerNotifier("notifier_reset_defaults", [this](std::vector<std::string>params) {ResetDefault(); }, "Reset Defaults", PERMISSION_ALL);
-	
 	gameWrapper->HookEvent("Function TAGame.Mutator_Freeplay_TA.Init", bind(&VelocityVectorPlugin::OnFreeplayLoad, this, std::placeholders::_1));
 	gameWrapper->HookEvent("Function TAGame.GameEvent_Soccar_TA.Destroyed", bind(&VelocityVectorPlugin::OnFreeplayDestroy, this, std::placeholders::_1));
 	gameWrapper->HookEvent("Function TAGame.GameEvent_TrainingEditor_TA.StartPlayTest", bind(&VelocityVectorPlugin::OnFreeplayLoad, this, std::placeholders::_1));
 	gameWrapper->HookEvent("Function TAGame.GameEvent_TrainingEditor_TA.Destroyed", bind(&VelocityVectorPlugin::OnFreeplayDestroy, this, std::placeholders::_1));
 	gameWrapper->HookEvent("Function TAGame.GameInfo_Replay_TA.InitGame", bind(&VelocityVectorPlugin::OnFreeplayLoad, this, std::placeholders::_1));
 	gameWrapper->HookEvent("Function TAGame.Replay_TA.EventPostTimeSkip", bind(&VelocityVectorPlugin::OnFreeplayLoad, this, std::placeholders::_1));
+#if LOGGING
+	// Replace with dummy directory
+	std::string log_dir = "C:\\Whereever\\you\\want\\to\\log\\";
+	output_csv.open(log_dir + "render_log.csv", std::ios_base::app);
+#endif
 }
 
 void VelocityVectorPlugin::onUnload()
 {
 }
-
+//class BAKKESMOD_PLUGIN_EXPORT BakkesModPlugin has public gameWrapper member
+// gameWrapper member in class above located in bakkesmodplugin.h
+// Game wrapper -> RegisterDrawables binds render function as call back
 void VelocityVectorPlugin::OnFreeplayLoad(std::string eventName)
 {
 	cvarManager->log(std::string("OnFreeplayLoad") + eventName);
@@ -85,6 +101,12 @@ void VelocityVectorPlugin::OnShowVectorsChanged(std::string oldValue, CVarWrappe
 }
 
 float last_time = 0.f;
+int render_count = 0;
+struct Data {
+	float current = 0.f;
+	int count = 0;
+};
+Data latest;
 void VelocityVectorPlugin::Render(CanvasWrapper canvas)
 {
 	int ingame = (gameWrapper->IsInGame()) ? 1 : (gameWrapper->IsInReplay()) ? 2 : 0;
@@ -135,7 +157,16 @@ void VelocityVectorPlugin::Render(CanvasWrapper canvas)
 
 		}
 	}
+#if LOGGING
+	latest = { gameWrapper->GetGameEventAsServer().GetSecondsElapsed(),render_count };
+	gameWrapper->SetTimeout([this](GameWrapper* gw) {
 
+		auto tutorial = gameWrapper->GetGameEventAsServer();
+		output_csv << "Count:," << latest.count << ",Time:," << latest.current << "" << std::endl;
+
+		}, 0.001f);
+#endif
+	render_count++;
 }
 
 RT::Cone VelocityVectorPlugin::GetCone(Vector loc, Vector v, float difference)
